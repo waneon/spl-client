@@ -1,0 +1,36 @@
+@import "~antd/dist/antd.css";
+
+.logo {
+	height: 80px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: snow;
+	font-size: 32px;
+	font-weight: bold;
+}
+
+.trigger {
+	padding: 0 24px;
+	font-size: 18px;
+	line-height: 64px;
+	cursor: pointer;
+	transition: color 0.3s;
+}
+
+.trigger:hover {
+	color: #1890ff;
+}
+
+.site-layout {
+	.header {
+		padding: 0;
+		box-shadow: 0px 4px 8px -8px;
+		display: flex;
+		align-items: baseline;
+	}
+
+	.site-layout-background {
+		background: #fff;
+	}
+}
