@@ -16,7 +16,7 @@ const columns = [
     key: 'dept',
   },
   {
-    title: '설명',
+    title: '업무내용',
     dataIndex: 'note',
     key: 'note',
   },

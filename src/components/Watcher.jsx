@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Descriptions, Button, Input, Select } from 'antd';
+import { Descriptions, Button, Input, Select, Modal } from 'antd';
 
 import socket from '../utils/socket';
+
+const { confirm } = Modal;
 
 function Entry({ render, setEdit }) {
   // date
@@ -15,6 +17,26 @@ function Entry({ render, setEdit }) {
 
   const onEdit = () => {
     setEdit(true);
+  };
+
+  const onDelete = () => {
+    confirm({
+      title: '삭제',
+      content: '내용을 삭제합니다.',
+      onOk() {
+        socket().emit('update', {
+          target: 'watcher',
+          detail: {
+            name: '',
+            dept: '',
+            phone: '',
+            status: '',
+            note: render.note,
+            key: render.key,
+          },
+        });
+      },
+    });
   };
 
   return (
@@ -39,12 +61,19 @@ function Entry({ render, setEdit }) {
         <Descriptions.Item label="부서">{render.dept}</Descriptions.Item>
         <Descriptions.Item label="연락처">{render.phone}</Descriptions.Item>
         <Descriptions.Item label="근무현황">{render.status}</Descriptions.Item>
-        <Descriptions.Item label="지시사항" span={2}>
+        <Descriptions.Item label="당직예정자" span={2}>
           {render.note}
         </Descriptions.Item>
       </Descriptions>
-      <Button type="primary" onClick={onEdit} style={{}}>
+      <Button
+        type="primary"
+        onClick={onEdit}
+        style={{ marginRight: 10, marginTop: 20 }}
+      >
         수정
+      </Button>
+      <Button type="danger" onClick={onDelete} style={{}}>
+        삭제
       </Button>
     </>
   );
@@ -120,7 +149,7 @@ function EntryEdit({ render, setEdit }) {
         <Descriptions.Item label="근무현황">
           <Select
             defaultValue={render.status}
-            placeholder='근무현황을 선택하세요'
+            placeholder="근무현황을 선택하세요"
             onChange={(value) => onChange('status', value)}
           >
             <Select.Option value="1층 사무실">1층 사무실</Select.Option>
@@ -129,7 +158,7 @@ function EntryEdit({ render, setEdit }) {
             <Select.Option value="식사 중">식사 중</Select.Option>
           </Select>
         </Descriptions.Item>
-        <Descriptions.Item label="지시사항" span={2}>
+        <Descriptions.Item label="당직예정자" span={2}>
           <Input
             defaultValue={render.note}
             onChange={(e) => onChange('note', e.target.value)}

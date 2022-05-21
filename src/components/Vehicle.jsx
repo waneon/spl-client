@@ -68,6 +68,7 @@ function MyModal({ myKey, setKey, location }) {
       title={title}
       onOk={modalOff}
       onCancel={modalOff}
+      width='60%'
       footer={[
         <Button
           form="myForm"
@@ -97,8 +98,8 @@ function MyModal({ myKey, setKey, location }) {
         wrapperCol={{ span: 20 }}
         onFinish={onFinish}
       >
-        {/* 이름 */}
-        <Form.Item label="이름" name="name">
+        {/* 사용자 */}
+        <Form.Item label="사용자" name="name">
           <Input />
         </Form.Item>
         {/* 부서 */}
@@ -106,7 +107,7 @@ function MyModal({ myKey, setKey, location }) {
           <Input />
         </Form.Item>
         {/* 설명 */}
-        <Form.Item label="설명" name="note">
+        <Form.Item label="행선지/업무내용" name="note">
           <Input />
         </Form.Item>
         {/* 날짜 */}
@@ -118,15 +119,15 @@ function MyModal({ myKey, setKey, location }) {
           <TimePicker format="HH:mm" />
         </Form.Item>
         {/* 거리 */}
-        <Form.Item label="거리" name="distance">
+        <Form.Item label="거리(km)" name="distance">
           <InputNumber />
         </Form.Item>
         {/* 기름량 */}
-        <Form.Item label="기름량" name="oil">
+        <Form.Item label="주유(L)" name="oil">
           <InputNumber />
         </Form.Item>
         {/* 하이패스 충전량 */}
-        <Form.Item label="하이패스" name="hipass">
+        <Form.Item label="하이패스 충전(만원)" name="hipass">
           <InputNumber />
         </Form.Item>
       </Form>
@@ -225,14 +226,14 @@ function Entry({ entry, setKey }) {
         )
       }
     >
-      <EntryRow label="이름" data={entry.name} />
+      <EntryRow label="사용자" data={entry.name} />
       <EntryRow label="부서" data={entry.dept} />
-      <EntryRow label="설명" data={entry.note} />
+      <EntryRow label="행선지/업무내용" data={entry.note} />
       <EntryRow label="날짜" data={entry.date} />
       <EntryRow label="시간" data={entry.time} />
-      <EntryRow label="거리" data={entry.distance} />
-      <EntryRow label="기름량(L)" data={entry.oil} />
-      <EntryRow label="하이패스 충전량(원)" data={entry.hipass} />
+      <EntryRow label="거리(km)" data={entry.distance} />
+      <EntryRow label="주유(L)" data={entry.oil} />
+      <EntryRow label="하이패스 충전(만원)" data={entry.hipass} />
     </Card>
   );
 }

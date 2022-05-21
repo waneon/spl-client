@@ -122,8 +122,8 @@ function MyModal({ visible, mode, setVisible, location }) {
         <Form.Item label="부서" name="dept">
           <Input />
         </Form.Item>
-        {/* 설명 */}
-        <Form.Item label="설명" name="note">
+        {/* 업무내용 */}
+        <Form.Item label="업무내용" name="note">
           <Input />
         </Form.Item>
         {/* 행선지 */}
