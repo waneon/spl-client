@@ -11,7 +11,7 @@
     "react-start": "webpack serve --mode=development",
     "start": "concurrently \"yarn react-start\" \"wait-on http://localhost:8000 && electron .\"",
     "react-build": "webpack --mode=production",
-    "build": "yarn react-build && electron-builder --publish=always"
+    "build": "yarn react-build && electron-builder --publish=never"
   },
   "build": {
     "appId": "waneon.spl",

@@ -13,7 +13,8 @@ import {
   DatePicker,
   TimePicker,
 } from 'antd';
-import { DeleteOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
+import { DeleteOutlined, PlusOutlined, EditOutlined } from '@ant-design/icons';
+import moment from 'moment';
 
 import { socket, check_message } from '../utils/socket';
 
@@ -21,14 +22,14 @@ import './Person.scss';
 
 const { confirm } = Modal;
 
-function MyModal({ myKey, setKey, location }) {
+function MyModal({ entry, setEntry, location }) {
   const [form] = Form.useForm();
 
-  const title = '추가';
-
+  form.resetFields();
   const modalOff = () => {
-    setKey(0);
-    form.resetFields();
+    setEntry({
+      key: -1,
+    });
   };
 
   const onFinish = (values) => {
@@ -36,13 +37,13 @@ function MyModal({ myKey, setKey, location }) {
     if (values.date) {
       values.date = values.date.format('YYYY-MM-DD');
     } else {
-      values.date = null;
+      values.date = undefined;
     }
     // time formatting
     if (values.time) {
       values.time = values.time.format('HH:mm');
     } else {
-      values.time = null;
+      values.time = undefined;
     }
     // location setting
     values.which = location;
@@ -54,18 +55,21 @@ function MyModal({ myKey, setKey, location }) {
       target: 'vehicle',
       detail: {
         ...values,
-        key: myKey,
+        key: entry.key,
       },
     });
 
     modalOff();
   };
 
+  const defaultDate = entry.date ? moment(entry.date, 'YYYY-MM-DD') : null;
+  const defaultTime = entry.time ? moment(entry.time, 'HH:mm') : null
+
   return (
     <Modal
       centered
-      visible={myKey != 0}
-      title={title}
+      visible={entry.key != -1}
+      title={entry.enabled == true ? '수정' : '추가'}
       onOk={modalOff}
       onCancel={modalOff}
       width="60%"
@@ -100,35 +104,35 @@ function MyModal({ myKey, setKey, location }) {
       >
         {/* 사용자 */}
         <Form.Item label="사용자" name="name">
-          <Input />
+          <Input defaultValue={entry.name} />
         </Form.Item>
         {/* 부서 */}
         <Form.Item label="부서" name="dept">
-          <Input />
+          <Input defaultValue={entry.dept} />
         </Form.Item>
         {/* 설명 */}
         <Form.Item label="행선지/업무내용" name="note">
-          <Input />
+          <Input defaultValue={entry.note} />
         </Form.Item>
         {/* 날짜 */}
         <Form.Item label="날짜" name="date">
-          <DatePicker />
+          <DatePicker defaultValue={defaultDate} />
         </Form.Item>
         {/* 시간 */}
         <Form.Item label="시간" name="time">
-          <TimePicker format="HH:mm" />
+          <TimePicker format="HH:mm" defaultValue={defaultTime} />
         </Form.Item>
         {/* 거리 */}
         <Form.Item label="거리(km)" name="distance">
-          <InputNumber />
+          <InputNumber defaultValue={entry.distance} />
         </Form.Item>
         {/* 기름량 */}
         <Form.Item label="주유(L)" name="oil">
-          <InputNumber />
+          <InputNumber defaultValue={entry.oil} />
         </Form.Item>
         {/* 하이패스 충전량 */}
         <Form.Item label="하이패스 충전(만원)" name="hipass">
-          <InputNumber />
+          <InputNumber defaultValue={entry.hipass} />
         </Form.Item>
       </Form>
     </Modal>
@@ -144,111 +148,128 @@ function EntryRow({ label, data }) {
   );
 }
 
-function Entry({ entry, setKey, location }) {
-  const onSave = () => {
-    confirm({
-      title: '저장 후 삭제',
-      content: '해당 항목을 서버에 저장 후 삭제합니다.',
-      onOk() {
-        socket().emit('update', {
-          target: 'vehicle',
-          detail: {
-            key: entry.key,
-            name: '',
-            dept: '',
-            note: '',
-            date: '',
-            time: '',
-            distance: null,
-            oil: null,
-            hipass: null,
-            enabled: false,
-            which: location,
-          },
-        });
+function Entry({ entry, setEntry, location }) {
+  const [modal, setModal] = useState(false);
 
-        socket().emit('add', {
-          target: 'vehicle-log',
-          detail: {
-            ...entry,
-            key: undefined,
-          },
-        });
+  const onSave = () => {
+    socket().emit('update', {
+      target: 'vehicle',
+      detail: {
+        key: entry.key,
+        name: '',
+        dept: '',
+        note: '',
+        date: '',
+        time: '',
+        distance: null,
+        oil: null,
+        hipass: null,
+        enabled: false,
+        which: location,
       },
     });
+
+    socket().emit('add', {
+      target: 'vehicle-log',
+      detail: {
+        ...entry,
+        key: undefined,
+      },
+    });
+
+    setModal(false);
   };
 
   const onAdd = () => {
-    setKey(entry.key);
+    setEntry(entry);
+    console.log(entry);
   };
 
   const onDelete = () => {
-    confirm({
-      title: '삭제',
-      content: '해당 항목을 삭제합니다.',
-      onOk() {
-        socket().emit('update', {
-          target: 'vehicle',
-          detail: {
-            key: entry.key,
-            name: '',
-            dept: '',
-            note: '',
-            date: '',
-            time: '',
-            distance: null,
-            oil: null,
-            hipass: null,
-            enabled: false,
-            which: location,
-          },
-        });
+    socket().emit('update', {
+      target: 'vehicle',
+      detail: {
+        key: entry.key,
+        name: '',
+        dept: '',
+        note: '',
+        date: '',
+        time: '',
+        distance: null,
+        oil: null,
+        hipass: null,
+        enabled: false,
+        which: location,
       },
     });
+
+    setModal(false);
+  };
+
+  const onEdit = () => {
+    setEntry(entry);
   };
 
   return (
-    <Card
-      title={
-        <Typography.Title level={2} style={{ textAlign: 'center' }}>
-          {entry.car_name}
-        </Typography.Title>
-      }
-      extra={
-        entry.enabled ? (
-          <>
-            <SaveOutlined
-              onClick={onSave}
-              style={{ color: 'blue', marginRight: '8pt' }}
-            />
-            <DeleteOutlined onClick={onDelete} style={{ color: 'red' }} />
-          </>
-        ) : (
-          <PlusOutlined onClick={onAdd} style={{ color: 'green' }} />
-        )
-      }
-    >
-      <EntryRow label="사용자" data={entry.name} />
-      <EntryRow label="부서" data={entry.dept} />
-      <EntryRow label="행선지/업무내용" data={entry.note} />
-      <EntryRow label="날짜" data={entry.date} />
-      <EntryRow label="시간" data={entry.time} />
-      <EntryRow label="거리(km)" data={entry.distance} />
-      <EntryRow label="주유(L)" data={entry.oil} />
-      <EntryRow label="하이패스 충전(만원)" data={entry.hipass} />
-    </Card>
+    <>
+      <Card
+        title={
+          <Typography.Title level={2} style={{ textAlign: 'center' }}>
+            {entry.car_name}
+          </Typography.Title>
+        }
+        extra={
+          entry.enabled ? (
+            <>
+              <EditOutlined
+                onClick={onEdit}
+                style={{ color: 'blue', marginRight: '8pt' }}
+              />
+              <DeleteOutlined
+                onClick={() => setModal(true)}
+                style={{ color: 'red' }}
+              />
+            </>
+          ) : (
+            <PlusOutlined onClick={onAdd} style={{ color: 'green' }} />
+          )
+        }
+      >
+        <EntryRow label="사용자" data={entry.name} />
+        <EntryRow label="부서" data={entry.dept} />
+        <EntryRow label="행선지/업무내용" data={entry.note} />
+        <EntryRow label="날짜" data={entry.date} />
+        <EntryRow label="시간" data={entry.time} />
+        <EntryRow label="거리(km)" data={entry.distance} />
+        <EntryRow label="주유(L)" data={entry.oil} />
+        <EntryRow label="하이패스 충전(만원)" data={entry.hipass} />
+      </Card>
+      <Modal
+        visible={modal}
+        title="삭제"
+        onCancel={() => setModal(false)}
+        footer={[
+          <Button key="back" onClick={() => setModal(false)}>
+            취소
+          </Button>,
+          <Button key="submit" type="primary" onClick={onDelete}>
+            삭제
+          </Button>,
+          <Button key="link" type="primary" onClick={onSave}>
+            저장 후 삭제
+          </Button>,
+        ]}
+      >
+        해당 항목을 삭제합니다.
+      </Modal>
+    </>
   );
 }
 
 function Vehicle() {
   const location = useLocation().pathname;
   const [render, setRender] = useState([]);
-  const [key, setKey] = useState(0);
-
-  // turn on "add"
-  const setModalAdd = useCallback(() => {
-    setModal(true), setModalMode(null);
-  }, []);
+  const [entry, setEntry] = useState({ key: -1 });
 
   useEffect(() => {
     // emit gets method
@@ -293,11 +314,11 @@ function Vehicle() {
             key={entry.key}
             style={{ opacity: entry.enabled ? 1.0 : 0.5 }}
           >
-            <Entry entry={entry} setKey={setKey} location={location} />
+            <Entry entry={entry} setEntry={setEntry} location={location} />
           </Col>
         ))}
       </Row>
-      <MyModal myKey={key} setKey={setKey} location={location} />
+      <MyModal entry={entry} setEntry={setEntry} location={location} />
     </>
   );
 }
