@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Descriptions, Button, Input, Select, Modal } from 'antd';
+import { useLocation } from 'react-router-dom';
 
 import { socket, check_message } from '../utils/socket';
 
 const { confirm } = Modal;
 
-function Entry({ render, setEdit }) {
+function Entry({ render, setEdit, location }) {
   // date
   const today = new Date();
   const dateString = today.toLocaleDateString('ko-KR', {
@@ -33,6 +34,7 @@ function Entry({ render, setEdit }) {
             status: '',
             note: render.note,
             key: render.key,
+            which: location,
           },
         });
       },
@@ -79,7 +81,7 @@ function Entry({ render, setEdit }) {
   );
 }
 
-function EntryEdit({ render, setEdit }) {
+function EntryEdit({ render, setEdit, location }) {
   const [detail, setDetail] = useState({});
 
   // date
@@ -98,6 +100,7 @@ function EntryEdit({ render, setEdit }) {
       detail: {
         ...detail,
         key: render.key,
+        which: location,
       },
     });
   };
@@ -172,6 +175,7 @@ function EntryEdit({ render, setEdit }) {
 }
 
 function Watcher() {
+  const location = useLocation().pathname;
   const [render, setRender] = useState(null);
   const [edit, setEdit] = useState(false);
 
@@ -179,12 +183,15 @@ function Watcher() {
     // emit gets method
     socket().emit('gets', {
       target: 'watcher',
-      detail: {},
+      detail: {
+        which: location,
+      },
     });
 
     // for gets method received
     socket().on('gets', (data) => {
       if (check_message(data, location)) {
+        console.log(data);
         setRender(data.value[0]);
       }
     });
@@ -205,9 +212,9 @@ function Watcher() {
   if (render == null) {
     return null;
   } else if (!edit) {
-    return <Entry render={render} setEdit={setEdit} />;
+    return <Entry render={render} setEdit={setEdit} location={location} />;
   } else {
-    return <EntryEdit render={render} setEdit={setEdit} />;
+    return <EntryEdit render={render} setEdit={setEdit} location={location} />;
   }
 }
 
