@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Descriptions, Button, Input, Select, Modal } from 'antd';
 
-import socket from '../utils/socket';
+import { socket, check_message } from '../utils/socket';
 
 const { confirm } = Modal;
 
@@ -107,7 +107,6 @@ function EntryEdit({ render, setEdit }) {
       ...detail,
       [key]: value,
     }));
-    console.log(key, value);
   };
 
   return (
@@ -185,14 +184,14 @@ function Watcher() {
 
     // for gets method received
     socket().on('gets', (data) => {
-      if (data.status == 'ok') {
+      if (check_message(data, location)) {
         setRender(data.value[0]);
       }
     });
 
     // for update method received
     socket().on('update', (data) => {
-      if (data.status == 'ok') {
+      if (check_message(data, location)) {
         setRender(data.value);
       }
     });

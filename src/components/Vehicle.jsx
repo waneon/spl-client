@@ -15,7 +15,7 @@ import {
 } from 'antd';
 import { DeleteOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
 
-import socket from '../utils/socket';
+import { socket, check_message } from '../utils/socket';
 
 import './Person.scss';
 
@@ -68,7 +68,7 @@ function MyModal({ myKey, setKey, location }) {
       title={title}
       onOk={modalOff}
       onCancel={modalOff}
-      width='60%'
+      width="60%"
       footer={[
         <Button
           form="myForm"
@@ -144,7 +144,7 @@ function EntryRow({ label, data }) {
   );
 }
 
-function Entry({ entry, setKey }) {
+function Entry({ entry, setKey, location }) {
   const onSave = () => {
     confirm({
       title: '저장 후 삭제',
@@ -163,6 +163,7 @@ function Entry({ entry, setKey }) {
             oil: null,
             hipass: null,
             enabled: false,
+            which: location,
           },
         });
 
@@ -199,6 +200,7 @@ function Entry({ entry, setKey }) {
             oil: null,
             hipass: null,
             enabled: false,
+            which: location,
           },
         });
       },
@@ -259,22 +261,14 @@ function Vehicle() {
 
     // for gets method received
     socket().on('gets', (data) => {
-      if (data.status == 'ok') {
+      if (check_message(data, location)) {
         setRender(data.value);
       }
     });
 
-    // for get method received
-    // socket().on('get', (data) => {
-    //   if (data.status == 'ok') {
-    //     setModal(true);
-    //     setModalMode(data.value);
-    //   }
-    // });
-
     // for update method received
     socket().on('update', (data) => {
-      if (data.status == 'ok') {
+      if (check_message(data, location)) {
         setRender((render) =>
           render.map((entry) => {
             if (entry.key == data.value.key) return data.value;
@@ -299,7 +293,7 @@ function Vehicle() {
             key={entry.key}
             style={{ opacity: entry.enabled ? 1.0 : 0.5 }}
           >
-            <Entry entry={entry} setKey={setKey} />
+            <Entry entry={entry} setKey={setKey} location={location} />
           </Col>
         ))}
       </Row>

@@ -8,4 +8,12 @@ function socket() {
   return server;
 }
 
-export default socket;
+function check_message(data, location) {
+  if (data.status == 'ok' && data.detail.which == location) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+export { socket, check_message };

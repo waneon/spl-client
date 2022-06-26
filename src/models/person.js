@@ -2,7 +2,7 @@ import React from 'react';
 import { Space, Modal } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 
-import socket from '../utils/socket';
+import { socket } from '../utils/socket';
 
 const columns = [
   {
@@ -40,6 +40,7 @@ const columns = [
           target: 'person',
           detail: {
             key: record.key,
+            which: record.which,
           },
         });
       };
@@ -56,6 +57,7 @@ const columns = [
               target: 'person',
               detail: {
                 key: record.key,
+                which: record.which,
               },
             });
           },

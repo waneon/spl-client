@@ -5,7 +5,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 import columns from '../models/person';
-import socket from '../utils/socket';
+import { socket, check_message } from '../utils/socket';
 
 import './Person.scss';
 
@@ -161,14 +161,14 @@ function Person() {
 
     // for gets method received
     socket().on('gets', (data) => {
-      if (data.status == 'ok') {
+      if (check_message(data, location)) {
         setRender(data.value);
       }
     });
 
     // for get method received
     socket().on('get', (data) => {
-      if (data.status == 'ok') {
+      if (check_message(data, location)) {
         setModal(true);
         setModalMode(data.value);
       }
@@ -176,14 +176,14 @@ function Person() {
 
     // for add method received
     socket().on('add', (data) => {
-      if (data.status == 'ok') {
+      if (check_message(data, location)) {
         setRender((render) => [...render, data.value]);
       }
     });
 
     // for delete method received
     socket().on('delete', (data) => {
-      if (data.status == 'ok') {
+      if (check_message(data, location)) {
         setRender((render) =>
           render.filter((entry) => entry.key != data.value.key),
         );
@@ -192,7 +192,7 @@ function Person() {
 
     // for update method received
     socket().on('update', (data) => {
-      if (data.status == 'ok') {
+      if (check_message(data, location)) {
         setRender((render) =>
           render.map((entry) => {
             if (entry.key == data.value.key) return data.value;
